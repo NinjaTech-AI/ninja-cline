@@ -42,3 +42,26 @@ export async function openExternal(url: string): Promise<void> {
 	console.log("Opening browser:", url)
 	await open(url)
 }
+/**
+ * Environment variable utilities for Ninja API configuration
+ *
+ * These environment variables take precedence over stored configuration values,
+ * allowing for centralized configuration management in CI/CD, containerized
+ * deployments, or organization-wide settings.
+ */
+
+/**
+ * Get Ninja API Base URL from environment variable
+ * @returns The base URL if NINJA_API_BASE_URL is set, undefined otherwise
+ */
+export function getNinjaApiBaseUrl(): string | undefined {
+	return process.env.NINJA_API_BASE_URL
+}
+
+/**
+ * Get Ninja API Key from environment variable
+ * @returns The API key if NINJA_API_KEY is set, undefined otherwise
+ */
+export function getNinjaApiKey(): string | undefined {
+	return process.env.NINJA_API_KEY
+}
