@@ -12,8 +12,6 @@ const WelcomeView = memo(() => {
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [showApiOptions, setShowApiOptions] = useState(false)
 
-	const disableLetsGoButton = apiErrorMessage != null
-
 	const handleSubmit = async () => {
 		try {
 			await StateServiceClient.setWelcomeViewCompleted(BooleanRequest.create({ value: true }))
@@ -61,7 +59,7 @@ const WelcomeView = memo(() => {
 					{showApiOptions && (
 						<div>
 							<ApiOptions currentMode={mode} showModelOptions={false} />
-							<VSCodeButton className="mt-0.75" disabled={disableLetsGoButton} onClick={handleSubmit}>
+							<VSCodeButton className="mt-0.75" onClick={handleSubmit}>
 								Let's go!
 							</VSCodeButton>
 						</div>

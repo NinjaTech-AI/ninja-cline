@@ -1,5 +1,6 @@
 import { EmptyRequest, StringRequest } from "@shared/proto/cline/common"
 import open from "open"
+import * as vscode from "vscode"
 import { HostProvider } from "@/hosts/host-provider"
 
 /**
@@ -55,7 +56,7 @@ export async function openExternal(url: string): Promise<void> {
  * @returns The base URL if NINJA_API_BASE_URL is set, undefined otherwise
  */
 export function getNinjaApiBaseUrl(): string | undefined {
-	return process.env.NINJA_API_BASE_URL
+	return process.env.NINJA_API_BASE_URL || vscode.workspace.getConfiguration("ninja-dev").get<string>("baseUrl")
 }
 
 /**
@@ -63,5 +64,5 @@ export function getNinjaApiBaseUrl(): string | undefined {
  * @returns The API key if NINJA_API_KEY is set, undefined otherwise
  */
 export function getNinjaApiKey(): string | undefined {
-	return process.env.NINJA_API_KEY
+	return process.env.NINJA_API_KEY || vscode.workspace.getConfiguration("ninja-dev").get<string>("apiKey")
 }

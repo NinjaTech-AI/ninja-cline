@@ -208,7 +208,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		subagentTerminalOutputLineLimit: 2000,
 		defaultTerminalProfile: "default",
 		isNewUser: false,
-		welcomeViewCompleted: false,
+		welcomeViewCompleted: true,
 		mcpResponsesCollapsed: false, // Default value (expanded), will be overwritten by extension state
 		strictPlanModeEnabled: false,
 		yoloModeToggled: false,

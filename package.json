@@ -287,7 +287,23 @@
 		},
 		"configuration": {
 			"title": "Ninja Dev",
-			"properties": {}
+			"properties": {
+				"ninja-dev.baseUrl": {
+					"type": "string",
+					"default": "https://api.beta.myninja.ai/v1",
+					"description": "The base URL for the Ninja Dev API."
+				},
+				"ninja-dev.modelId": {
+					"type": "string",
+					"default": "alibaba:qwen-3-480b-cerebras",
+					"description": "The model ID for the Ninja Dev API."
+				},
+				"ninja-dev.apiKey": {
+					"type": "string",
+					"default": "",
+					"description": "The API key for the Ninja Dev API."
+				}
+			}
 		}
 	},
 	"scripts": {

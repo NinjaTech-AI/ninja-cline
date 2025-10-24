@@ -1,10 +1,8 @@
 import { azureOpenAiDefaultApiVersion } from "@shared/api"
-import { OpenAiModelsRequest } from "@shared/proto/cline/models"
 import { Mode } from "@shared/storage/types"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
-import { useCallback, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import { ModelsServiceClient } from "@/services/grpc-client"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "@/utils/vscStyles"
 import { ApiKeyField } from "../common/ApiKeyField"
 import { BaseUrlField } from "../common/BaseUrlField"
@@ -43,44 +41,42 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 		}
 	}, [])
 
-	const debouncedRefreshOpenAiModels = useCallback((baseUrl?: string, apiKey?: string) => {
-		if (debounceTimerRef.current) {
-			clearTimeout(debounceTimerRef.current)
-		}
+	// const debouncedRefreshOpenAiModels = useCallback((baseUrl?: string, apiKey?: string) => {
+	// 	if (debounceTimerRef.current) {
+	// 		clearTimeout(debounceTimerRef.current)
+	// 	}
 
-		if (baseUrl && apiKey) {
-			debounceTimerRef.current = setTimeout(() => {
-				ModelsServiceClient.refreshOpenAiModels(
-					OpenAiModelsRequest.create({
-						baseUrl,
-						apiKey,
-					}),
-				).catch((error) => {
-					console.error("Failed to refresh OpenAI models:", error)
-				})
-			}, 500)
-		}
-	}, [])
+	// 	if (baseUrl && apiKey) {
+	// 		debounceTimerRef.current = setTimeout(() => {
+	// 			ModelsServiceClient.refreshOpenAiModels(
+	// 				OpenAiModelsRequest.create({
+	// 					baseUrl,
+	// 					apiKey,
+	// 				}),
+	// 			).catch((error) => {
+	// 				console.error("Failed to refresh OpenAI models:", error)
+	// 			})
+	// 		}, 500)
+	// 	}
+	// }, [])
 
 	// Set locked values for Ninja API
 	const NINJA_BASE_URL = "https://api.beta.myninja.ai/v1"
 	const NINJA_MODEL_ID = "alibaba:qwen-3-480b-cerebras"
 
 	// Ensure the locked values are set in state if not already set
-	// Note: If NINJA_API_BASE_URL env var is set, it will already be in apiConfiguration.openAiBaseUrl
 	useEffect(() => {
-		// Only update if value is empty or doesn't match expected value (unless overridden by env var)
-		if (apiConfiguration?.openAiBaseUrl !== NINJA_BASE_URL && !apiConfiguration?.openAiBaseUrl) {
+		if (apiConfiguration?.openAiBaseUrl !== NINJA_BASE_URL) {
 			handleFieldChange("openAiBaseUrl", NINJA_BASE_URL)
 		}
-		if (selectedModelId !== NINJA_MODEL_ID && !selectedModelId) {
-			handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, NINJA_MODEL_ID, currentMode)
-		}
+		// if (selectedModelId !== NINJA_MODEL_ID) {
+		handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, NINJA_MODEL_ID, currentMode)
+		// }
 	}, []) // Only run on mount
 
 	return (
 		<div>
-			{/* Locked Base URL for Ninja API (may be overridden by NINJA_API_BASE_URL env var) */}
+			{/* Locked Base URL for Ninja API */}
 			<div className="mb-2.5">
 				<div className="flex items-center gap-2 mb-1">
 					<span style={{ fontWeight: 500 }}>Base URL</span>
@@ -88,7 +84,7 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				</div>
 				<DebouncedTextField
 					disabled={true}
-					initialValue={apiConfiguration?.openAiBaseUrl || NINJA_BASE_URL}
+					initialValue={NINJA_BASE_URL}
 					onChange={() => {}}
 					placeholder={NINJA_BASE_URL}
 					style={{ width: "100%" }}
@@ -101,7 +97,6 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				initialValue={apiConfiguration?.openAiApiKey || ""}
 				onChange={(value) => {
 					handleFieldChange("openAiApiKey", value)
-					debouncedRefreshOpenAiModels(NINJA_BASE_URL, value)
 				}}
 				providerName="Ninja"
 			/>
@@ -113,9 +108,10 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 					<i className="codicon codicon-lock text-[var(--vscode-descriptionForeground)] text-sm" />
 				</div>
 				<DebouncedTextField
-					disabled={true}
 					initialValue={NINJA_MODEL_ID}
-					onChange={() => {}}
+					onChange={(value) =>
+						handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, value, currentMode)
+					}
 					placeholder={NINJA_MODEL_ID}
 					style={{ width: "100%" }}
 				/>
