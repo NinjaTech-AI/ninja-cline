@@ -5,7 +5,6 @@ import ChatView from "./components/chat/ChatView"
 import HistoryView from "./components/history/HistoryView"
 import McpView from "./components/mcp/configuration/McpConfigurationView"
 import SettingsView from "./components/settings/SettingsView"
-import WelcomeView from "./components/welcome/WelcomeView"
 import { useClineAuth } from "./context/ClineAuthContext"
 import { useExtensionState } from "./context/ExtensionStateContext"
 import { Providers } from "./Providers"
@@ -53,9 +52,9 @@ const AppContent = () => {
 		return null
 	}
 
-	if (showWelcome) {
-		return <WelcomeView />
-	}
+	// if (showWelcome) {
+	// 	return <WelcomeView />
+	// }
 
 	return (
 		<div className="flex h-screen w-full flex-col">

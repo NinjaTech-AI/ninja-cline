@@ -97,3 +97,17 @@ enum DiagnosticSeverity {
   DIAGNOSTIC_INFORMATION = 2;
   DIAGNOSTIC_HINT = 3;
 }
+
+// Log levels for webview logging
+enum LogLevel {
+  LOG_DEBUG = 0;
+  LOG_INFO = 1;
+  LOG_WARN = 2;
+  LOG_ERROR = 3;
+}
+
+message LogMessageRequest {
+  LogLevel level = 1;
+  string message = 2;
+  optional string error_stack = 3;
+}
