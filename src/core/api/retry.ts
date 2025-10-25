@@ -38,8 +38,8 @@ export function withRetry(options: RetryOptions = {}) {
 				} catch (error: any) {
 					const isRateLimit = error?.status === 429 || error instanceof RetriableError
 					const isLastAttempt = attempt === maxRetries - 1
-
-					if ((!isRateLimit && !retryAllErrors) || isLastAttempt) {
+					const isBalanceError = error?.status === 423
+					if ((!isRateLimit && !retryAllErrors) || isLastAttempt || isBalanceError) {
 						throw error
 					}
 

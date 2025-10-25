@@ -83,6 +83,11 @@ func (e *ClineError) GetErrorType() ClineErrorType {
 		return ErrorTypeBalance
 	}
 
+	// Check suspended API key (status 423 = Locked)
+	if e.Status == 423 {
+		return ErrorTypeBalance
+	}
+
 	// Check auth errors
 	if codeStr == "ERR_BAD_REQUEST" || e.Status == 401 {
 		return ErrorTypeAuth

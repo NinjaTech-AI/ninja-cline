@@ -1,17 +1,14 @@
-import { azureOpenAiDefaultApiVersion, openAiModelInfoSaneDefaults } from "@shared/api"
-import { OpenAiModelsRequest } from "@shared/proto/cline/models"
+import { azureOpenAiDefaultApiVersion } from "@shared/api"
 import { Mode } from "@shared/storage/types"
-import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
-import { useCallback, useEffect, useRef, useState } from "react"
-import HeroTooltip from "@/components/common/HeroTooltip"
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import { useEffect, useRef } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import { ModelsServiceClient } from "@/services/grpc-client"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "@/utils/vscStyles"
 import { ApiKeyField } from "../common/ApiKeyField"
 import { BaseUrlField } from "../common/BaseUrlField"
 import { DebouncedTextField } from "../common/DebouncedTextField"
 import { ModelInfoView } from "../common/ModelInfoView"
-import { getModeSpecificFields, normalizeApiConfiguration } from "../utils/providerUtils"
+import { normalizeApiConfiguration } from "../utils/providerUtils"
 import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers"
 
 /**
@@ -27,16 +24,11 @@ interface OpenAICompatibleProviderProps {
  * The OpenAI Compatible provider configuration component
  */
 export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMode }: OpenAICompatibleProviderProps) => {
-	const { apiConfiguration, remoteConfigSettings } = useExtensionState()
+	const { apiConfiguration } = useExtensionState()
 	const { handleFieldChange, handleModeFieldChange } = useApiConfigurationHandlers()
-
-	const [modelConfigurationSelected, setModelConfigurationSelected] = useState(false)
 
 	// Get the normalized configuration
 	const { selectedModelId, selectedModelInfo } = normalizeApiConfiguration(apiConfiguration, currentMode)
-
-	// Get mode-specific fields
-	const { openAiModelInfo } = getModeSpecificFields(apiConfiguration, currentMode)
 
 	// Debounced function to refresh OpenAI models (prevents excessive API calls while typing)
 	const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -49,149 +41,113 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 		}
 	}, [])
 
-	const debouncedRefreshOpenAiModels = useCallback((baseUrl?: string, apiKey?: string) => {
-		if (debounceTimerRef.current) {
-			clearTimeout(debounceTimerRef.current)
-		}
+	// const debouncedRefreshOpenAiModels = useCallback((baseUrl?: string, apiKey?: string) => {
+	// 	if (debounceTimerRef.current) {
+	// 		clearTimeout(debounceTimerRef.current)
+	// 	}
 
-		if (baseUrl && apiKey) {
-			debounceTimerRef.current = setTimeout(() => {
-				ModelsServiceClient.refreshOpenAiModels(
-					OpenAiModelsRequest.create({
-						baseUrl,
-						apiKey,
-					}),
-				).catch((error) => {
-					console.error("Failed to refresh OpenAI models:", error)
-				})
-			}, 500)
+	// 	if (baseUrl && apiKey) {
+	// 		debounceTimerRef.current = setTimeout(() => {
+	// 			ModelsServiceClient.refreshOpenAiModels(
+	// 				OpenAiModelsRequest.create({
+	// 					baseUrl,
+	// 					apiKey,
+	// 				}),
+	// 			).catch((error) => {
+	// 				console.error("Failed to refresh OpenAI models:", error)
+	// 			})
+	// 		}, 500)
+	// 	}
+	// }, [])
+
+	// Set locked values for Ninja API
+	const NINJA_BASE_URL = "https://api.beta.myninja.ai/v1"
+	const NINJA_MODEL_ID = "alibaba:qwen-3-480b-cerebras"
+
+	// Ensure the locked values are set in state if not already set
+	useEffect(() => {
+		if (apiConfiguration?.openAiBaseUrl !== NINJA_BASE_URL) {
+			handleFieldChange("openAiBaseUrl", NINJA_BASE_URL)
 		}
-	}, [])
+		// if (selectedModelId !== NINJA_MODEL_ID) {
+		handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, NINJA_MODEL_ID, currentMode)
+		// }
+	}, []) // Only run on mount
 
 	return (
 		<div>
-			{remoteConfigSettings?.openAiBaseUrl !== undefined ? (
-				<HeroTooltip content="This setting is managed by your organization's remote configuration">
-					<div className="mb-2.5">
-						<div className="flex items-center gap-2 mb-1">
-							<span style={{ fontWeight: 500 }}>Base URL</span>
-							<i className="codicon codicon-lock text-[var(--vscode-descriptionForeground)] text-sm" />
-						</div>
-						<DebouncedTextField
-							disabled={true}
-							initialValue={apiConfiguration?.openAiBaseUrl || ""}
-							onChange={(value) => {
-								handleFieldChange("openAiBaseUrl", value)
-								debouncedRefreshOpenAiModels(value, apiConfiguration?.openAiApiKey)
-							}}
-							placeholder={"Enter base URL..."}
-							style={{ width: "100%" }}
-							type="url"
-						/>
-					</div>
-				</HeroTooltip>
-			) : (
-				<DebouncedTextField
-					initialValue={apiConfiguration?.openAiBaseUrl || ""}
-					onChange={(value) => {
-						handleFieldChange("openAiBaseUrl", value)
-						debouncedRefreshOpenAiModels(value, apiConfiguration?.openAiApiKey)
-					}}
-					placeholder={"Enter base URL..."}
-					style={{ width: "100%", marginBottom: 10 }}
-					type="url">
+			{/* Locked Base URL for Ninja API */}
+			<div className="mb-2.5">
+				<div className="flex items-center gap-2 mb-1">
 					<span style={{ fontWeight: 500 }}>Base URL</span>
-				</DebouncedTextField>
-			)}
+					<i className="codicon codicon-lock text-[var(--vscode-descriptionForeground)] text-sm" />
+				</div>
+				<DebouncedTextField
+					disabled={true}
+					initialValue={NINJA_BASE_URL}
+					onChange={() => {}}
+					placeholder={NINJA_BASE_URL}
+					style={{ width: "100%" }}
+					type="url"
+				/>
+			</div>
 
+			{/* Editable API Key - renamed to Ninja */}
 			<ApiKeyField
 				initialValue={apiConfiguration?.openAiApiKey || ""}
 				onChange={(value) => {
 					handleFieldChange("openAiApiKey", value)
-					debouncedRefreshOpenAiModels(apiConfiguration?.openAiBaseUrl, value)
 				}}
-				providerName="OpenAI Compatible"
+				providerName="Ninja"
 			/>
 
-			<DebouncedTextField
-				initialValue={selectedModelId || ""}
-				onChange={(value) =>
-					handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, value, currentMode)
-				}
-				placeholder={"Enter Model ID..."}
-				style={{ width: "100%", marginBottom: 10 }}>
-				<span style={{ fontWeight: 500 }}>Model ID</span>
-			</DebouncedTextField>
+			{/* Locked Model ID for Ninja API */}
+			<div style={{ marginBottom: 10 }}>
+				<div className="flex items-center gap-2 mb-1">
+					<span style={{ fontWeight: 500 }}>Model ID</span>
+					<i className="codicon codicon-lock text-[var(--vscode-descriptionForeground)] text-sm" />
+				</div>
+				<DebouncedTextField
+					initialValue={NINJA_MODEL_ID}
+					onChange={(value) =>
+						handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, value, currentMode)
+					}
+					placeholder={NINJA_MODEL_ID}
+					style={{ width: "100%" }}
+				/>
+			</div>
 
-			{/* OpenAI Compatible Custom Headers */}
+			{/* Custom Headers - Disabled for Ninja API */}
 			{(() => {
 				const headerEntries = Object.entries(apiConfiguration?.openAiHeaders ?? {})
 
 				return (
 					<div style={{ marginBottom: 10 }}>
-						{remoteConfigSettings?.openAiHeaders !== undefined ? (
-							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-								<HeroTooltip content="This setting is managed by your organization's remote configuration">
-									<div className="flex items-center gap-2">
-										<span style={{ fontWeight: 500 }}>Custom Headers</span>
-										<i className="codicon codicon-lock text-[var(--vscode-descriptionForeground)] text-sm" />
-									</div>
-								</HeroTooltip>
-								<VSCodeButton disabled={true}>Add Header</VSCodeButton>
-							</div>
-						) : (
-							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+						<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+							<div className="flex items-center gap-2">
 								<span style={{ fontWeight: 500 }}>Custom Headers</span>
-								<VSCodeButton
-									onClick={() => {
-										const currentHeaders = { ...(apiConfiguration?.openAiHeaders || {}) }
-										const headerCount = Object.keys(currentHeaders).length
-										const newKey = `header${headerCount + 1}`
-										currentHeaders[newKey] = ""
-										handleFieldChange("openAiHeaders", currentHeaders)
-									}}>
-									Add Header
-								</VSCodeButton>
+								<i className="codicon codicon-lock text-[var(--vscode-descriptionForeground)] text-sm" />
 							</div>
-						)}
+							<VSCodeButton disabled={true}>Add Header</VSCodeButton>
+						</div>
 						<div>
 							{headerEntries.map(([key, value], index) => (
 								<div key={index} style={{ display: "flex", gap: 5, marginTop: 5 }}>
 									<DebouncedTextField
-										disabled={remoteConfigSettings?.openAiHeaders !== undefined}
+										disabled={true}
 										initialValue={key}
-										onChange={(newValue) => {
-											const currentHeaders = apiConfiguration?.openAiHeaders ?? {}
-											if (newValue && newValue !== key) {
-												const { [key]: _, ...rest } = currentHeaders
-												handleFieldChange("openAiHeaders", {
-													...rest,
-													[newValue]: value,
-												})
-											}
-										}}
+										onChange={() => {}}
 										placeholder="Header name"
 										style={{ width: "40%" }}
 									/>
 									<DebouncedTextField
-										disabled={remoteConfigSettings?.openAiHeaders !== undefined}
+										disabled={true}
 										initialValue={value}
-										onChange={(newValue) => {
-											handleFieldChange("openAiHeaders", {
-												...(apiConfiguration?.openAiHeaders ?? {}),
-												[key]: newValue,
-											})
-										}}
+										onChange={() => {}}
 										placeholder="Header value"
 										style={{ width: "40%" }}
 									/>
-									<VSCodeButton
-										appearance="secondary"
-										disabled={remoteConfigSettings?.openAiHeaders !== undefined}
-										onClick={() => {
-											const { [key]: _, ...rest } = apiConfiguration?.openAiHeaders ?? {}
-											handleFieldChange("openAiHeaders", rest)
-										}}>
+									<VSCodeButton appearance="secondary" disabled={true}>
 										Remove
 									</VSCodeButton>
 								</div>
@@ -201,192 +157,34 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				)
 			})()}
 
-			{remoteConfigSettings?.azureApiVersion !== undefined ? (
-				<HeroTooltip content="This setting is managed by your organization's remote configuration">
-					<BaseUrlField
-						disabled={true}
-						initialValue={apiConfiguration?.azureApiVersion}
-						label="Set Azure API version"
-						onChange={(value) => handleFieldChange("azureApiVersion", value)}
-						placeholder={`Default: ${azureOpenAiDefaultApiVersion}`}
-						showLockIcon={true}
-					/>
-				</HeroTooltip>
-			) : (
-				<BaseUrlField
-					initialValue={apiConfiguration?.azureApiVersion}
-					label="Set Azure API version"
-					onChange={(value) => handleFieldChange("azureApiVersion", value)}
-					placeholder={`Default: ${azureOpenAiDefaultApiVersion}`}
-				/>
-			)}
+			{/* Azure API Version - Disabled for Ninja API */}
+			<BaseUrlField
+				disabled={true}
+				initialValue={apiConfiguration?.azureApiVersion}
+				label="Set Azure API version"
+				onChange={() => {}}
+				placeholder={`Default: ${azureOpenAiDefaultApiVersion}`}
+				showLockIcon={true}
+			/>
 
+			{/* Model Configuration - Disabled for Ninja API */}
 			<div
-				onClick={() => setModelConfigurationSelected((val) => !val)}
 				style={{
 					color: getAsVar(VSC_DESCRIPTION_FOREGROUND),
 					display: "flex",
 					margin: "10px 0",
-					cursor: "pointer",
 					alignItems: "center",
+					opacity: 0.5,
 				}}>
-				<span
-					className={`codicon ${modelConfigurationSelected ? "codicon-chevron-down" : "codicon-chevron-right"}`}
-					style={{
-						marginRight: "4px",
-					}}></span>
+				<i className="codicon codicon-lock" style={{ marginRight: "4px" }} />
 				<span
 					style={{
 						fontWeight: 700,
 						textTransform: "uppercase",
 					}}>
-					Model Configuration
+					Model Configuration (Locked)
 				</span>
 			</div>
-
-			{modelConfigurationSelected && (
-				<>
-					<VSCodeCheckbox
-						checked={!!openAiModelInfo?.supportsImages}
-						onChange={(e: any) => {
-							const isChecked = e.target.checked === true
-							const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-							modelInfo.supportsImages = isChecked
-							handleModeFieldChange(
-								{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-								modelInfo,
-								currentMode,
-							)
-						}}>
-						Supports Images
-					</VSCodeCheckbox>
-
-					<VSCodeCheckbox
-						checked={!!openAiModelInfo?.isR1FormatRequired}
-						onChange={(e: any) => {
-							const isChecked = e.target.checked === true
-							let modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-							modelInfo = { ...modelInfo, isR1FormatRequired: isChecked }
-
-							handleModeFieldChange(
-								{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-								modelInfo,
-								currentMode,
-							)
-						}}>
-						Enable R1 messages format
-					</VSCodeCheckbox>
-
-					<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
-						<DebouncedTextField
-							initialValue={
-								openAiModelInfo?.contextWindow
-									? openAiModelInfo.contextWindow.toString()
-									: (openAiModelInfoSaneDefaults.contextWindow?.toString() ?? "")
-							}
-							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.contextWindow = Number(value)
-								handleModeFieldChange(
-									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-									modelInfo,
-									currentMode,
-								)
-							}}
-							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Context Window Size</span>
-						</DebouncedTextField>
-
-						<DebouncedTextField
-							initialValue={
-								openAiModelInfo?.maxTokens
-									? openAiModelInfo.maxTokens.toString()
-									: (openAiModelInfoSaneDefaults.maxTokens?.toString() ?? "")
-							}
-							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.maxTokens = Number(value)
-								handleModeFieldChange(
-									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-									modelInfo,
-									currentMode,
-								)
-							}}
-							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Max Output Tokens</span>
-						</DebouncedTextField>
-					</div>
-
-					<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
-						<DebouncedTextField
-							initialValue={
-								openAiModelInfo?.inputPrice
-									? openAiModelInfo.inputPrice.toString()
-									: (openAiModelInfoSaneDefaults.inputPrice?.toString() ?? "")
-							}
-							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.inputPrice = Number(value)
-								handleModeFieldChange(
-									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-									modelInfo,
-									currentMode,
-								)
-							}}
-							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Input Price / 1M tokens</span>
-						</DebouncedTextField>
-
-						<DebouncedTextField
-							initialValue={
-								openAiModelInfo?.outputPrice
-									? openAiModelInfo.outputPrice.toString()
-									: (openAiModelInfoSaneDefaults.outputPrice?.toString() ?? "")
-							}
-							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-								modelInfo.outputPrice = Number(value)
-								handleModeFieldChange(
-									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-									modelInfo,
-									currentMode,
-								)
-							}}
-							style={{ flex: 1 }}>
-							<span style={{ fontWeight: 500 }}>Output Price / 1M tokens</span>
-						</DebouncedTextField>
-					</div>
-
-					<div style={{ display: "flex", gap: 10, marginTop: "5px" }}>
-						<DebouncedTextField
-							initialValue={
-								openAiModelInfo?.temperature
-									? openAiModelInfo.temperature.toString()
-									: (openAiModelInfoSaneDefaults.temperature?.toString() ?? "")
-							}
-							onChange={(value) => {
-								const modelInfo = openAiModelInfo ? openAiModelInfo : { ...openAiModelInfoSaneDefaults }
-
-								const shouldPreserveFormat = value.endsWith(".") || (value.includes(".") && value.endsWith("0"))
-
-								modelInfo.temperature =
-									value === ""
-										? openAiModelInfoSaneDefaults.temperature
-										: shouldPreserveFormat
-											? (value as any)
-											: parseFloat(value)
-
-								handleModeFieldChange(
-									{ plan: "planModeOpenAiModelInfo", act: "actModeOpenAiModelInfo" },
-									modelInfo,
-									currentMode,
-								)
-							}}>
-							<span style={{ fontWeight: 500 }}>Temperature</span>
-						</DebouncedTextField>
-					</div>
-				</>
-			)}
 
 			<p
 				style={{
@@ -394,9 +192,9 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 					marginTop: 3,
 					color: "var(--vscode-descriptionForeground)",
 				}}>
-				<span style={{ color: "var(--vscode-errorForeground)" }}>
-					(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts and works best with Claude models.
-					Less capable models may not work as expected.)
+				<span>
+					Ninja API is powered by Alibaba Qwen 3 480B Cerebras, providing fast and capable AI assistance for your coding
+					tasks.
 				</span>
 			</p>
 

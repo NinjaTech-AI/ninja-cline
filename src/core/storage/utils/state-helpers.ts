@@ -9,6 +9,7 @@ import { DEFAULT_DICTATION_SETTINGS, DictationSettings } from "@/shared/Dictatio
 import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "@/shared/FocusChainSettings"
 import { DEFAULT_MCP_DISPLAY_MODE } from "@/shared/McpDisplayMode"
 import { OpenaiReasoningEffort } from "@/shared/storage/types"
+import { getNinjaApiBaseUrl, getNinjaApiKey } from "@/utils/env"
 import { readTaskHistoryFromState } from "../disk"
 export async function readSecretsFromDisk(context: ExtensionContext): Promise<Secrets> {
 	const [
@@ -91,6 +92,9 @@ export async function readSecretsFromDisk(context: ExtensionContext): Promise<Se
 		context.secrets.get("ocaRefreshToken") as Promise<string | undefined>,
 	])
 
+	// Override with environment variable if set (takes precedence for Ninja API configuration)
+	const finalOpenAiApiKey = getNinjaApiKey() || openAiApiKey
+
 	return {
 		authNonce,
 		apiKey,
@@ -123,7 +127,7 @@ export async function readSecretsFromDisk(context: ExtensionContext): Promise<Se
 		togetherApiKey,
 		qwenApiKey,
 		geminiApiKey,
-		openAiApiKey,
+		openAiApiKey: finalOpenAiApiKey,
 		awsBedrockApiKey,
 		awsAccessKey,
 		awsSecretKey,
@@ -171,6 +175,8 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 		const vertexProjectId = context.globalState.get<GlobalStateAndSettings["vertexProjectId"]>("vertexProjectId")
 		const vertexRegion = context.globalState.get<GlobalStateAndSettings["vertexRegion"]>("vertexRegion")
 		const openAiBaseUrl = context.globalState.get<GlobalStateAndSettings["openAiBaseUrl"]>("openAiBaseUrl")
+		// Override with environment variable if set (takes precedence for Ninja API configuration)
+		const finalOpenAiBaseUrl = getNinjaApiBaseUrl() || openAiBaseUrl
 		const requestyBaseUrl = context.globalState.get<GlobalStateAndSettings["requestyBaseUrl"]>("requestyBaseUrl")
 		const openAiHeaders = context.globalState.get<GlobalStateAndSettings["openAiHeaders"]>("openAiHeaders")
 		const ollamaBaseUrl = context.globalState.get<GlobalStateAndSettings["ollamaBaseUrl"]>("ollamaBaseUrl")
@@ -433,8 +439,8 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 		if (planModeApiProvider) {
 			apiProvider = planModeApiProvider
 		} else {
-			// New users should default to openrouter, since they've opted to use an API key instead of signing in
-			apiProvider = "openrouter"
+			// Default to openai (OpenAI Compatible) provider for Ninja API
+			apiProvider = "openai"
 		}
 
 		const mcpResponsesCollapsed = mcpResponsesCollapsedRaw ?? false
@@ -476,7 +482,7 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 			awsAuthentication,
 			vertexProjectId,
 			vertexRegion,
-			openAiBaseUrl,
+			openAiBaseUrl: finalOpenAiBaseUrl,
 			requestyBaseUrl,
 			openAiHeaders: openAiHeaders || {},
 			ollamaBaseUrl,

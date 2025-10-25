@@ -42,6 +42,9 @@ service AccountService {
 
   // Returns a link the webview can use to redirect back to the user's IDE.
   rpc getRedirectUrl(EmptyRequest) returns (String);
+  
+  // Fetches account balance from the OpenAI-compatible endpoint
+  rpc getAccountBalance(GetAccountBalanceRequest) returns (AccountBalanceData);
 }
 
 message AuthStateChangedRequest {
@@ -133,4 +136,14 @@ message OrganizationUsageTransaction {
   int32 prompt_tokens = 10;
   int32 total_tokens = 11;
   string user_id = 12;
+}
+
+message GetAccountBalanceRequest {
+  string api_base_url = 1;
+  string api_key = 2;
+}
+
+message AccountBalanceData {
+  int64 balance_nanos = 1;
+  string keys_status = 2;
 }

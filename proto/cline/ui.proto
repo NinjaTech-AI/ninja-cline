@@ -262,4 +262,7 @@ service UiService {
   
   // Opens the Cline walkthrough
   rpc openWalkthrough(EmptyRequest) returns (Empty);
+  
+  // Logs a message from the webview to the extension output channel
+  rpc logMessage(LogMessageRequest) returns (Empty);
 }

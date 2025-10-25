@@ -1,6 +1,7 @@
 import { ClineMessage } from "@shared/ExtensionMessage"
 import React from "react"
 import TaskHeader from "@/components/chat/task-header/TaskHeader"
+import BalanceInfoBlock from "@/components/common/BalanceInfoBlock"
 import { MessageHandlers, ScrollBehavior } from "../../types/chatTypes"
 
 interface TaskSectionProps {
@@ -36,19 +37,22 @@ export const TaskSection: React.FC<TaskSectionProps> = ({
 	lastProgressMessageText,
 }) => {
 	return (
-		<TaskHeader
-			cacheReads={apiMetrics.totalCacheReads}
-			cacheWrites={apiMetrics.totalCacheWrites}
-			doesModelSupportPromptCache={selectedModelInfo.supportsPromptCache}
-			lastApiReqTotalTokens={lastApiReqTotalTokens}
-			lastProgressMessageText={lastProgressMessageText}
-			onClose={messageHandlers.handleTaskCloseButtonClick}
-			onScrollToMessage={scrollBehavior.scrollToMessage}
-			onSendMessage={messageHandlers.handleSendMessage}
-			task={task}
-			tokensIn={apiMetrics.totalTokensIn}
-			tokensOut={apiMetrics.totalTokensOut}
-			totalCost={apiMetrics.totalCost}
-		/>
+		<>
+			<BalanceInfoBlock />
+			<TaskHeader
+				cacheReads={apiMetrics.totalCacheReads}
+				cacheWrites={apiMetrics.totalCacheWrites}
+				doesModelSupportPromptCache={selectedModelInfo.supportsPromptCache}
+				lastApiReqTotalTokens={lastApiReqTotalTokens}
+				lastProgressMessageText={lastProgressMessageText}
+				onClose={messageHandlers.handleTaskCloseButtonClick}
+				onScrollToMessage={scrollBehavior.scrollToMessage}
+				onSendMessage={messageHandlers.handleSendMessage}
+				task={task}
+				tokensIn={apiMetrics.totalTokensIn}
+				tokensOut={apiMetrics.totalTokensOut}
+				totalCost={apiMetrics.totalCost}
+			/>
+		</>
 	)
 }
