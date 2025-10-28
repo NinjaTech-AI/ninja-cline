@@ -25,7 +25,7 @@ interface OpenAICompatibleProviderProps {
  */
 export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMode }: OpenAICompatibleProviderProps) => {
 	const { apiConfiguration } = useExtensionState()
-	const { handleFieldChange, handleModeFieldChange } = useApiConfigurationHandlers()
+	const { handleFieldChange } = useApiConfigurationHandlers()
 
 	// Get the normalized configuration
 	const { selectedModelId, selectedModelInfo } = normalizeApiConfiguration(apiConfiguration, currentMode)
@@ -69,9 +69,13 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 		if (apiConfiguration?.openAiBaseUrl !== NINJA_BASE_URL) {
 			handleFieldChange("openAiBaseUrl", NINJA_BASE_URL)
 		}
-		// if (selectedModelId !== NINJA_MODEL_ID) {
-		handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, NINJA_MODEL_ID, currentMode)
-		// }
+		// Set both plan and act mode model IDs to the NINJA_MODEL_ID
+		if (apiConfiguration?.planModeOpenAiModelId !== NINJA_MODEL_ID) {
+			handleFieldChange("planModeOpenAiModelId", NINJA_MODEL_ID)
+		}
+		if (apiConfiguration?.actModeOpenAiModelId !== NINJA_MODEL_ID) {
+			handleFieldChange("actModeOpenAiModelId", NINJA_MODEL_ID)
+		}
 	}, []) // Only run on mount
 
 	return (
@@ -109,9 +113,11 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 				</div>
 				<DebouncedTextField
 					initialValue={NINJA_MODEL_ID}
-					onChange={(value) =>
-						handleModeFieldChange({ plan: "planModeOpenAiModelId", act: "actModeOpenAiModelId" }, value, currentMode)
-					}
+					onChange={(value) => {
+						// Set both plan and act mode model IDs
+						handleFieldChange("planModeOpenAiModelId", value)
+						handleFieldChange("actModeOpenAiModelId", value)
+					}}
 					placeholder={NINJA_MODEL_ID}
 					style={{ width: "100%" }}
 				/>

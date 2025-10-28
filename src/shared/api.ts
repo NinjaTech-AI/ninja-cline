@@ -1372,6 +1372,9 @@ export const openAiNativeModels = {
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#api-specs
 export const azureOpenAiDefaultApiVersion = "2024-08-01-preview"
 
+// OpenAI Compatible (Ninja API)
+export const openAiCompatibleDefaultModelId = "alibaba:qwen-3-480b-cerebras"
+
 // DeepSeek
 // https://api-docs.deepseek.com/quick_start/pricing
 export type DeepSeekModelId = keyof typeof deepSeekModels

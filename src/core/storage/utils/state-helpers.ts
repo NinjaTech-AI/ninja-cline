@@ -1,4 +1,10 @@
-import { ANTHROPIC_MIN_THINKING_BUDGET, ApiProvider, fireworksDefaultModelId, type OcaModelInfo } from "@shared/api"
+import {
+	ANTHROPIC_MIN_THINKING_BUDGET,
+	ApiProvider,
+	fireworksDefaultModelId,
+	type OcaModelInfo,
+	openAiCompatibleDefaultModelId,
+} from "@shared/api"
 import { GlobalStateAndSettings, LocalState, SecretKey, Secrets } from "@shared/storage/state-keys"
 import { ExtensionContext } from "vscode"
 import { Controller } from "@/core/controller"
@@ -522,7 +528,7 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 			planModeAwsBedrockCustomModelBaseId,
 			planModeOpenRouterModelId,
 			planModeOpenRouterModelInfo,
-			planModeOpenAiModelId,
+			planModeOpenAiModelId: planModeOpenAiModelId || openAiCompatibleDefaultModelId,
 			planModeOpenAiModelInfo,
 			planModeOllamaModelId,
 			planModeLmStudioModelId,
@@ -556,7 +562,7 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 			actModeAwsBedrockCustomModelBaseId,
 			actModeOpenRouterModelId,
 			actModeOpenRouterModelInfo,
-			actModeOpenAiModelId,
+			actModeOpenAiModelId: actModeOpenAiModelId || openAiCompatibleDefaultModelId,
 			actModeOpenAiModelInfo,
 			actModeOllamaModelId,
 			actModeLmStudioModelId,

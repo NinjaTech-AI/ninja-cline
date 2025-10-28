@@ -57,7 +57,7 @@ const BalanceInfoBlock = () => {
 	const balanceInDollars = balanceNanos / 1_000_000_000
 
 	return (
-		<div className="mt-3 mb-2 px-4 py-3 bg-[#EAEBEC] flex items-center justify-between">
+		<div className="mt-3 mb-2 px-4 py-3 bg-[var(--vscode-input-background)] flex items-center justify-between">
 			<div className="flex flex-col">
 				<span className="text-sm font-semibold text-[var(--vscode-foreground)]">
 					${balanceInDollars.toFixed(2)} credits available
