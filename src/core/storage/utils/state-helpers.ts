@@ -1,10 +1,4 @@
-import {
-	ANTHROPIC_MIN_THINKING_BUDGET,
-	ApiProvider,
-	fireworksDefaultModelId,
-	type OcaModelInfo,
-	openAiCompatibleDefaultModelId,
-} from "@shared/api"
+import { ANTHROPIC_MIN_THINKING_BUDGET, ApiProvider, fireworksDefaultModelId, type OcaModelInfo } from "@shared/api"
 import { GlobalStateAndSettings, LocalState, SecretKey, Secrets } from "@shared/storage/state-keys"
 import { ExtensionContext } from "vscode"
 import { Controller } from "@/core/controller"
@@ -16,6 +10,7 @@ import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "@/shared/FocusChainSettings"
 import { DEFAULT_MCP_DISPLAY_MODE } from "@/shared/McpDisplayMode"
 import { OpenaiReasoningEffort } from "@/shared/storage/types"
 import { getNinjaApiBaseUrl, getNinjaApiKey } from "@/utils/env"
+import { getOpenAiCompatibleDefaultModelId } from "@/utils/openai-compatible-defaults"
 import { readTaskHistoryFromState } from "../disk"
 export async function readSecretsFromDisk(context: ExtensionContext): Promise<Secrets> {
 	const [
@@ -159,6 +154,9 @@ export async function readWorkspaceStateFromDisk(context: ExtensionContext): Pro
 
 export async function readGlobalStateFromDisk(context: ExtensionContext): Promise<GlobalStateAndSettings> {
 	try {
+		// Get default OpenAI compatible model from feature flag
+		const defaultOpenAiCompatibleModelId = await getOpenAiCompatibleDefaultModelId()
+
 		// Get all global state values
 		const strictPlanModeEnabled =
 			context.globalState.get<GlobalStateAndSettings["strictPlanModeEnabled"]>("strictPlanModeEnabled")
@@ -528,7 +526,7 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 			planModeAwsBedrockCustomModelBaseId,
 			planModeOpenRouterModelId,
 			planModeOpenRouterModelInfo,
-			planModeOpenAiModelId: planModeOpenAiModelId || openAiCompatibleDefaultModelId,
+			planModeOpenAiModelId: planModeOpenAiModelId || defaultOpenAiCompatibleModelId,
 			planModeOpenAiModelInfo,
 			planModeOllamaModelId,
 			planModeLmStudioModelId,
@@ -562,7 +560,7 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 			actModeAwsBedrockCustomModelBaseId,
 			actModeOpenRouterModelId,
 			actModeOpenRouterModelInfo,
-			actModeOpenAiModelId: actModeOpenAiModelId || openAiCompatibleDefaultModelId,
+			actModeOpenAiModelId: actModeOpenAiModelId || defaultOpenAiCompatibleModelId,
 			actModeOpenAiModelInfo,
 			actModeOllamaModelId,
 			actModeLmStudioModelId,

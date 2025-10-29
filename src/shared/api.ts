@@ -1373,7 +1373,9 @@ export const openAiNativeModels = {
 export const azureOpenAiDefaultApiVersion = "2024-08-01-preview"
 
 // OpenAI Compatible (Ninja API)
-export const openAiCompatibleDefaultModelId = "alibaba:qwen-3-480b-cerebras"
+// This is a fallback constant. The actual default should be fetched from the feature flag "model-settings"
+// Use getOpenAiCompatibleDefaultModelId() from @/utils/openai-compatible-defaults for the current default
+export const openAiCompatibleDefaultModelId = "zai:glm-4-6-cerebras"
 
 // DeepSeek
 // https://api-docs.deepseek.com/quick_start/pricing

@@ -1161,6 +1161,14 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			if (!apiConfiguration) {
 				return unknownModel
 			}
+			switch (selectedModelId) {
+				case "zai:glm-4-6":
+					return "Standard"
+				case "zai:glm-4-6-cerebras":
+					return "Fast"
+				case "anthropic:claude-sonnet-4-5-bedrock":
+					return "Complex"
+			}
 			switch (selectedProvider) {
 				case "cline":
 					return `${selectedProvider}:${selectedModelId}`
