@@ -1,7 +1,7 @@
 {
 	"name": "ninja-dev",
-	"displayName": "Ninja Dev",
-	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
+	"displayName": "Ninja Cline AI Studio",
+	"description": "Ninja Cline AI Studio is a development environment for building AI-powered applications. It provides a set of tools and services to help you build, test, and deploy your applications.",
 	"version": "3.32.8",
 	"icon": "assets/icons/icon.png",
 	"engines": {
@@ -101,7 +101,7 @@
 			"activitybar": [
 				{
 					"id": "ninja-dev-ActivityBar",
-					"title": "Ninja Dev",
+					"title": "Ninja Cline AI Studio",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -286,22 +286,22 @@
 			]
 		},
 		"configuration": {
-			"title": "Ninja Dev",
+			"title": "Ninja Cline AI Studio",
 			"properties": {
 				"ninja-dev.baseUrl": {
 					"type": "string",
 					"default": "https://api.beta.myninja.ai/v1",
-					"description": "The base URL for the Ninja Dev API."
+					"description": "The base URL for the Ninja Cline AI Studio API."
 				},
 				"ninja-dev.modelId": {
 					"type": "string",
 					"default": "alibaba:qwen-3-480b-cerebras",
-					"description": "The model ID for the Ninja Dev API."
+					"description": "The model ID for the Ninja Cline AI Studio API."
 				},
 				"ninja-dev.apiKey": {
 					"type": "string",
 					"default": "",
-					"description": "The API key for the Ninja Dev API."
+					"description": "The API key for the Ninja Cline AI Studio API."
 				}
 			}
 		}

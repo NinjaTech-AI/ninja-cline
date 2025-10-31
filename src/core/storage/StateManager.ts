@@ -15,6 +15,7 @@ import chokidar, { FSWatcher } from "chokidar"
 import type { ExtensionContext } from "vscode"
 import { HostProvider } from "@/hosts/host-provider"
 import { ShowMessageType } from "@/shared/proto/index.host"
+import { transformNinjaApiBaseUrl } from "@/utils/env"
 import {
 	getTaskHistoryStateFilePath,
 	readTaskHistoryFromState,
@@ -24,6 +25,7 @@ import {
 } from "./disk"
 import { STATE_MANAGER_NOT_INITIALIZED } from "./error-messages"
 import { readGlobalStateFromDisk, readSecretsFromDisk, readWorkspaceStateFromDisk } from "./utils/state-helpers"
+
 export interface PersistenceErrorEvent {
 	error: Error
 }
@@ -1009,10 +1011,11 @@ export class StateManager {
 			vertexProjectId: this.taskStateCache["vertexProjectId"] || this.globalStateCache["vertexProjectId"],
 			vertexRegion: this.taskStateCache["vertexRegion"] || this.globalStateCache["vertexRegion"],
 			requestyBaseUrl: this.taskStateCache["requestyBaseUrl"] || this.globalStateCache["requestyBaseUrl"],
-			openAiBaseUrl:
+			openAiBaseUrl: transformNinjaApiBaseUrl(
 				this.remoteConfigCache["openAiBaseUrl"] ||
-				this.taskStateCache["openAiBaseUrl"] ||
-				this.globalStateCache["openAiBaseUrl"],
+					this.taskStateCache["openAiBaseUrl"] ||
+					this.globalStateCache["openAiBaseUrl"],
+			),
 			openAiHeaders:
 				this.remoteConfigCache["openAiHeaders"] ||
 				this.taskStateCache["openAiHeaders"] ||

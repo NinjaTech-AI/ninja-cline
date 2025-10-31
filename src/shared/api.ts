@@ -659,6 +659,15 @@ export const bedrockModels = {
 		description:
 			"A compact 20B open-weight Mixture-of-Experts language model designed for strong reasoning and tool use, ideal for edge devices and local inference.",
 	},
+	"openai-compat:zai:glm-4-6-cerebras": {
+		maxTokens: 8192,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		inputPrice: 0.07,
+		outputPrice: 0.3,
+		description: "Balanced for quality & speed. Powered by GLM-4.6, 357B Parameters",
+	},
 } as const satisfies Record<string, ModelInfo>
 
 // OpenRouter
@@ -1035,7 +1044,7 @@ export const openAiModelInfoSaneDefaults: OpenAiCompatibleModelInfo = {
 	maxTokens: -1,
 	contextWindow: 128_000,
 	supportsImages: true,
-	supportsPromptCache: false,
+	supportsPromptCache: true,
 	isR1FormatRequired: false,
 	inputPrice: 0,
 	outputPrice: 0,
@@ -1371,6 +1380,11 @@ export const openAiNativeModels = {
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#api-specs
 export const azureOpenAiDefaultApiVersion = "2024-08-01-preview"
+
+// OpenAI Compatible (Ninja API)
+// This is a fallback constant. The actual default should be fetched from the feature flag "model-settings"
+// Use getOpenAiCompatibleDefaultModelId() from @/utils/openai-compatible-defaults for the current default
+export const openAiCompatibleDefaultModelId = "zai:glm-4-6-cerebras"
 
 // DeepSeek
 // https://api-docs.deepseek.com/quick_start/pricing
