@@ -1,5 +1,6 @@
 import { RemoteConfig } from "@shared/remote-config/schema"
 import { GlobalStateAndSettings } from "@shared/storage/state-keys"
+import { transformNinjaApiBaseUrl } from "@/utils/env"
 import { StateManager } from "../StateManager"
 
 /**
@@ -75,7 +76,8 @@ export function transformRemoteConfigToStateShape(remoteConfig: RemoteConfig): P
 		transformed.actModeApiProvider = "openai"
 
 		if (openAiSettings.openAiBaseUrl !== undefined) {
-			transformed.openAiBaseUrl = openAiSettings.openAiBaseUrl
+			// Transform the URL to convert api.prod.myninja.ai to api.myninja.ai
+			transformed.openAiBaseUrl = transformNinjaApiBaseUrl(openAiSettings.openAiBaseUrl)
 		}
 		if (openAiSettings.openAiHeaders !== undefined) {
 			transformed.openAiHeaders = openAiSettings.openAiHeaders

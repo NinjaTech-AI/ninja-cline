@@ -52,11 +52,25 @@ export async function openExternal(url: string): Promise<void> {
  */
 
 /**
+ * Transform Ninja API Base URL to convert production domain to public domain
+ * Converts api.prod.myninja.ai to api.myninja.ai
+ * @param url The URL to transform
+ * @returns The transformed URL or undefined if input is undefined
+ */
+export function transformNinjaApiBaseUrl(url: string | undefined): string | undefined {
+	if (!url) {
+		return url
+	}
+	return url.replace(/api\.prod\.myninja\.ai/g, "api.myninja.ai")
+}
+
+/**
  * Get Ninja API Base URL from environment variable
  * @returns The base URL if NINJA_API_BASE_URL is set, undefined otherwise
  */
 export function getNinjaApiBaseUrl(): string | undefined {
-	return process.env.NINJA_API_BASE_URL || vscode.workspace.getConfiguration("ninja-dev").get<string>("baseUrl")
+	const baseUrl = process.env.NINJA_API_BASE_URL || vscode.workspace.getConfiguration("ninja-dev").get<string>("baseUrl")
+	return transformNinjaApiBaseUrl(baseUrl)
 }
 
 /**

@@ -1,11 +1,11 @@
 import { StringRequest } from "@shared/proto/cline/common"
-import { useAccountBalance } from "@/components/ui/hooks/useAccountBalance"
+// import { useAccountBalance } from "@/components/ui/hooks/useAccountBalance"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { UiServiceClient } from "@/services/grpc-client"
 
 const BalanceInfoBlock = () => {
 	const { apiConfiguration } = useExtensionState()
-	const { data, isLoading, error } = useAccountBalance()
+	// const { data, isLoading, error } = useAccountBalance()
 
 	const handleManageClick = async () => {
 		if (!apiConfiguration?.openAiBaseUrl) {
@@ -28,39 +28,41 @@ const BalanceInfoBlock = () => {
 		}
 	}
 
-	// Don't render if API is not configured
-	if (!apiConfiguration?.openAiBaseUrl) {
-		return null
-	}
+	// // Don't render if API is not configured
+	// if (!apiConfiguration?.openAiBaseUrl) {
+	// 	return null
+	// }
 
-	// Don't render while loading and no cached data
-	if (isLoading && !data) {
-		return (
-			<div className="mx-4 mt-3 mb-2 px-4 py-3 bg-[var(--vscode-editor-background)] border border-[var(--vscode-panel-border)] rounded-lg flex items-center justify-between">
-				<span className="text-sm text-[var(--vscode-descriptionForeground)]">Loading balance...</span>
-			</div>
-		)
-	}
+	// // Don't render while loading and no cached data
+	// if (isLoading && !data) {
+	// 	return (
+	// 		<div className="mx-4 mt-3 mb-2 px-4 py-3 bg-[var(--vscode-editor-background)] border border-[var(--vscode-panel-border)] rounded-lg flex items-center justify-between">
+	// 			<span className="text-sm text-[var(--vscode-descriptionForeground)]">Loading balance...</span>
+	// 		</div>
+	// 	)
+	// }
 
-	// Show error state but don't block UI
-	if (error && !data) {
-		return null // Silently fail if no cached data
-	}
+	// // Show error state but don't block UI
+	// if (error && !data) {
+	// 	return null // Silently fail if no cached data
+	// }
 
-	// Don't render if no data available
-	if (!data) {
-		return null
-	}
+	// // Don't render if no data available
+	// if (!data) {
+	// 	return null
+	// }
 
-	// Convert balance_nanos to dollars (Long/BigInt to number)
-	const balanceNanos = typeof data.balanceNanos === "bigint" ? Number(data.balanceNanos) : data.balanceNanos
-	const balanceInDollars = balanceNanos / 1_000_000_000
+	// // Convert balance_nanos to dollars (Long/BigInt to number)
+	// const balanceNanos = typeof data.balanceNanos === "bigint" ? Number(data.balanceNanos) : data.balanceNanos
+	// const balanceInDollars = balanceNanos / 1_000_000_000
 
 	return (
 		<div className="mt-3 mb-2 px-4 py-3 bg-[var(--vscode-input-background)] flex items-center justify-between">
 			<div className="flex flex-col">
-				<span className="text-sm font-semibold text-[var(--vscode-foreground)]">
-					${balanceInDollars.toFixed(2)} credits available
+				<span className="text-xxs text-nowrap text-[var(--vscode-foreground)]">
+					<b className="font-semibold ">On-demand SuperNinja Credit Pack</b>
+					<br />
+					<span className="text-xxs">Never run out of Ninja Cline API access</span>
 				</span>
 			</div>
 			<button

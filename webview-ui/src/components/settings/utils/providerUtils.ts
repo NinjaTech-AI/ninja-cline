@@ -192,7 +192,14 @@ export function normalizeApiConfiguration(
 			return {
 				selectedProvider: provider,
 				selectedModelId: openAiModelId || "",
-				selectedModelInfo: openAiModelInfo || openAiModelInfoSaneDefaults,
+				selectedModelInfo: {
+					...(openAiModelInfo || openAiModelInfoSaneDefaults),
+					contextWindow: Number(
+						openAiModelId === "anthropic:claude-sonnet-4-5-bedrock"
+							? 200_000
+							: openAiModelInfoSaneDefaults?.contextWindow,
+					),
+				},
 			}
 		case "ollama":
 			const ollamaModelId =

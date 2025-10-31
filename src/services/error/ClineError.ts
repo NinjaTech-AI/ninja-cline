@@ -137,7 +137,7 @@ export class ClineError extends Error {
 		const { code, status, details } = err._error
 
 		// Check balance error first (most specific)
-		if (code === "insufficient_credits" && typeof details?.current_balance === "number") {
+		if ((code === "insufficient_credits" && typeof details?.current_balance === "number") || status === 423) {
 			return ClineErrorType.Balance
 		}
 

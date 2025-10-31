@@ -1,10 +1,11 @@
 import { azureOpenAiDefaultApiVersion } from "@shared/api"
+import { LogLevel, LogMessageRequest } from "@shared/proto/cline/common"
 import { FeatureFlagRequest } from "@shared/proto/cline/feature_flags"
 import { Mode } from "@shared/storage/types"
 import { VSCodeButton, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import { FeatureFlagsServiceClient } from "@/services/grpc-client"
+import { FeatureFlagsServiceClient, UiServiceClient } from "@/services/grpc-client"
 import { getAsVar, VSC_DESCRIPTION_FOREGROUND } from "@/utils/vscStyles"
 import { ApiKeyField } from "../common/ApiKeyField"
 import { BaseUrlField } from "../common/BaseUrlField"
@@ -64,8 +65,13 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 	const { handleFieldChange } = useApiConfigurationHandlers()
 
 	// Get the normalized configuration
-	const { selectedModelId, selectedModelInfo } = normalizeApiConfiguration(apiConfiguration, currentMode)
-
+	const { selectedProvider, selectedModelId, selectedModelInfo } = normalizeApiConfiguration(apiConfiguration, currentMode)
+	UiServiceClient.logMessage(
+		LogMessageRequest.create({
+			level: LogLevel.LOG_INFO,
+			message: `selectedModelInfo ${selectedProvider}:${selectedModelId}: ${JSON.stringify(selectedModelInfo)}`,
+		}),
+	)
 	// Fetch model options from feature flag service
 	const [modelOptionsPayload, setModelOptionsPayload] = useState<any>(null)
 
@@ -143,24 +149,22 @@ export const OpenAICompatibleProvider = ({ showModelOptions, isPopup, currentMod
 	// }, [])
 
 	// Set locked values for Ninja API
-	const NINJA_BASE_URL = "https://api.beta.myninja.ai/v1"
+	const NINJA_BASE_URL = apiConfiguration?.openAiBaseUrl || "https://api.beta.myninja.ai/v1"
 
 	// Track the selected model for description display
-	const [selectedModel, setSelectedModel] = useState(apiConfiguration?.planModeOpenAiModelId || DEFAULT_MODEL)
+	const [selectedModel, setSelectedModel] = useState(
+		apiConfiguration?.planModeOpenAiModelId || selectedModelId || DEFAULT_MODEL,
+	)
 	const [hasInitializedFromFeatureFlag, setHasInitializedFromFeatureFlag] = useState(false)
 
 	// Ensure the locked values are set in state if not already set
 	useEffect(() => {
-		if (apiConfiguration?.openAiBaseUrl !== NINJA_BASE_URL) {
-			handleFieldChange("openAiBaseUrl", NINJA_BASE_URL)
-		}
-
 		// When feature flag loads, set the default model from it
 		// Only do this once on initial load, not on subsequent changes
 		if (modelOptionsPayload && !hasInitializedFromFeatureFlag) {
-			handleFieldChange("planModeOpenAiModelId", DEFAULT_MODEL)
-			handleFieldChange("actModeOpenAiModelId", DEFAULT_MODEL)
-			setSelectedModel(DEFAULT_MODEL)
+			handleFieldChange("planModeOpenAiModelId", selectedModelId || DEFAULT_MODEL)
+			handleFieldChange("actModeOpenAiModelId", selectedModelId || DEFAULT_MODEL)
+			setSelectedModel(selectedModelId || DEFAULT_MODEL)
 			setHasInitializedFromFeatureFlag(true)
 			return
 		}

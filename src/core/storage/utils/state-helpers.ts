@@ -9,7 +9,7 @@ import { DEFAULT_DICTATION_SETTINGS, DictationSettings } from "@/shared/Dictatio
 import { DEFAULT_FOCUS_CHAIN_SETTINGS } from "@/shared/FocusChainSettings"
 import { DEFAULT_MCP_DISPLAY_MODE } from "@/shared/McpDisplayMode"
 import { OpenaiReasoningEffort } from "@/shared/storage/types"
-import { getNinjaApiBaseUrl, getNinjaApiKey } from "@/utils/env"
+import { getNinjaApiBaseUrl, getNinjaApiKey, transformNinjaApiBaseUrl } from "@/utils/env"
 import { getOpenAiCompatibleDefaultModelId } from "@/utils/openai-compatible-defaults"
 import { readTaskHistoryFromState } from "../disk"
 export async function readSecretsFromDisk(context: ExtensionContext): Promise<Secrets> {
@@ -180,7 +180,8 @@ export async function readGlobalStateFromDisk(context: ExtensionContext): Promis
 		const vertexRegion = context.globalState.get<GlobalStateAndSettings["vertexRegion"]>("vertexRegion")
 		const openAiBaseUrl = context.globalState.get<GlobalStateAndSettings["openAiBaseUrl"]>("openAiBaseUrl")
 		// Override with environment variable if set (takes precedence for Ninja API configuration)
-		const finalOpenAiBaseUrl = getNinjaApiBaseUrl() || openAiBaseUrl
+		// Transform the URL to convert api.prod.myninja.ai to api.myninja.ai
+		const finalOpenAiBaseUrl = getNinjaApiBaseUrl() || transformNinjaApiBaseUrl(openAiBaseUrl)
 		const requestyBaseUrl = context.globalState.get<GlobalStateAndSettings["requestyBaseUrl"]>("requestyBaseUrl")
 		const openAiHeaders = context.globalState.get<GlobalStateAndSettings["openAiHeaders"]>("openAiHeaders")
 		const ollamaBaseUrl = context.globalState.get<GlobalStateAndSettings["ollamaBaseUrl"]>("ollamaBaseUrl")
